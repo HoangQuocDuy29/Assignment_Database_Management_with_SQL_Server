@@ -1,74 +1,50 @@
---1.create a database;
-
-CREATE DATABASE SellingPoint;
-
---2.Create tables based on the given design;
-
-USE SellingPoint;
-
--- Create Categories table
-CREATE TABLE Categories (
-  CateID char(6) PRIMARY KEY,
-  CateName nvarchar(100) NOT NULL,
-  Description nvarchar(200)
+create database SellingPoint;
+go 
+use SellingPoint;
+go
+create table Categories(CateID Char(6) primary key,
+						CateName nvarchar(100) not null,
+						Description nvarchar(200)
 );
+go
 
--- Create Parts table
-CREATE TABLE Parts (
-  PartID int PRIMARY KEY IDENTITY(1,1),
-  PartName nvarchar(100) NOT NULL,
-  CateID char(6) FOREIGN KEY REFERENCES Categories(CateID),
-  Description nvarchar(1000),
-  Price money NOT NULL DEFAULT 0,
-  Quantity int DEFAULT 0,
-  Warranty int DEFAULT 1,
-  Photo nvarchar(200) DEFAULT 'photo/nophoto.png'
+create table Parts(PartID int identity(1,1) primary key,
+						PartName nvarchar(200) not null,
+						CateID Char(6) not null,
+						Description nvarchar(1000),
+						Price money default(0),
+						Quantity int default(0),
+						Warranty int default(1),
+						Photo nvarchar(200) default('photo/nophoto.png'),
+						constraint Fk_CateID FOREIGN KEY (CateID) references Categories(CateID)
 );
+go
 
---Insert at least three records into each table;
+insert into Categories(CateID, CateName, Description) values ('001', 'CPU Intel 35', 'Chip Intel san xuat');
+insert into Categories(CateID, CateName, Description) values ('002', 'RAM Viet Nam', 'Ram Viet Nam san xuat');
+insert into Categories(CateID, CateName, Description) values ('003', 'HDD China', 'O cung cua Trung Quoc San xuat');
 
--- Insert sample data into Categories table
-INSERT INTO Categories (CateID, CateName, Description)
-VALUES ('RAM', 'Random Access Memory', 'A type of computer memory that can be accessed randomly.');
+go
 
-INSERT INTO Categories (CateID, CateName, Description)
-VALUES ('CPU', 'Central Processing Unit', 'The primary component of a computer that performs most of the processing.');
-
-INSERT INTO Categories (CateID, CateName, Description)
-VALUES ('HDD', 'Hard Disk Drive', 'A type of computer storage device that uses magnetic storage to store and retrieve digital information.');
-
---3. Insert sample data into Parts table
-INSERT INTO Parts (PartName, CateID, Description, Price, Quantity, Warranty, Photo)
-VALUES ('8GB DDR4 RAM', 'RAM', 'A computer memory module with 8GB capacity and DDR4 standard.', 80, 50, 12, 'photo/ram.jpg');
-
-INSERT INTO Parts (PartName, CateID, Description, Price, Quantity, Warranty, Photo)
-VALUES ('Intel Core i5-11600K', 'CPU', 'A high-performance desktop processor with 6 cores and 12 threads.', 300, 20, 24, 'photo/cpu.jpg');
-
-INSERT INTO Parts (PartName, CateID, Description, Price, Quantity, Warranty, Photo)
-VALUES ('1TB Western Digital HDD', 'HDD', 'A desktop hard disk drive with 1TB storage capacity.', 70, 30, 36, 'photo/hdd.jpg');
-
---4.List all parts in the store with price > 100$;
-
-SELECT * FROM Parts WHERE Price > 100;
-
---5.List all parts of the category ‘CPU’;
-
-SELECT * FROM Parts WHERE CateID = 'CPU';
-
---6.Create a view v_Parts that contains the following information (PartID, PartName, CateName, Price, Quantity) from table Parts and Categories;
-
-CREATE VIEW v_Parts AS
-SELECT P.PartID, P.PartName, C.CateName, P.Price, P.Quantity
-FROM Parts P
-JOIN Categories C ON P.CateID = C.CateID;
-
---7.Create a view v_TopParts that lists the top 5 parts with the most expensive price;
-
-CREATE VIEW v_TopParts AS
-SELECT TOP 5 PartID, PartName, Price
-FROM Parts
-ORDER BY Price DESC;
-
-
-
-
+insert into Parts(PartName, CateID, Description, Price, Quantity, Warranty, Photo) 
+			values ('May tinh bo 001', '001', 'May tinh bo 001', 150, 20, 15,'photo/nophoto11.png');
+insert into Parts(PartName, CateID, Description, Price, Quantity, Warranty, Photo) 
+			values ('May dong bo 002', '002', 'May dong bo 002', 50, 12, 10,'photo/nophoto12.png');
+insert into Parts(PartName, CateID, Description, Price, Quantity, Warranty, Photo) 
+			values ('May tinh bo 003', '003', 'May tinh bo 003', 260, 5, 25,'photo/nophoto13.png');
+go
+-- Part 4 --
+select * From Parts where Price > 100;
+go
+-- Part 5 --
+select * From Parts where CateID in (select CateID from Categories where CateName like 'CPU%');
+go
+-- Part 6 --
+create view [dbo].[v_Parts] as 
+		(select p.PartID, p.PartName, c.CateName, p.Price, p.Quantity from Parts as p 
+				inner join Categories as c on p.CateID = c.CateID);
+				go
+				
+-- Part 7 --
+create view [dbo].[v_TopParts] as 
+		(select top 5 * from Parts order by Price desc);
